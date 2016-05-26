@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>打地鼠</title>
+<script src="jquery-2.2.4.min.js"></script>
+</head>
+<body style="user-select:none;-moz-user-select:none;-webkit-user-select:none;" onselectstart="return false;">
+<style>
+  .hammer{cursor:url(hammer.png),auto;}
+  .blkbg{
+    position:absolute;
+    overflow:hidden;
+    }
+  .blkbg img {position:relative;top:340px;}
+</style>
+<div class="hammer" style="position:absolute;width:640px;height:480px;left:0;top:0;bottom:0;right:0;margin:auto;">
+  <img class="hammer" src="bg.jpg" style="position:absolute;left:0;top:0;width:640px;height:480px;"/>
+  <canvas id="holes" class="hammer" width="640" height="480" style="position:absolute;left:0;top:0;"></canvas>
+  <div id="mices">
+    <div class="blkbg" style="left:243px;top:268px;width:54px;height:81px;"><img id="m-0" src="mouse.png" style="width:100%;"/></div>
+    <div class="blkbg" style="left:313px;top:268px;width:54px;height:81px;"><img id="m-1" src="mouse.png" style="width:100%;"/></div>
+    <div class="blkbg" style="left:383px;top:268px;width:54px;height:81px;"><img id="m-2" src="mouse.png" style="width:100%;"/></div>
+    <div class="blkbg" style="left:210px;top:305px;width:54px;height:81px;"><img id="m-3" src="mouse.png" style="width:100%;"/></div>
+    <div class="blkbg" style="left:286px;top:305px;width:54px;height:81px;"><img id="m-4" src="mouse.png" style="width:100%;"/></div>
+    <div class="blkbg" style="left:362px;top:305px;width:54px;height:81px;"><img id="m-5" src="mouse.png" style="width:100%;"/></div>
+    <div class="blkbg" style="left:175px;top:340px;width:60px;height:90px;"><img id="m-6" src="mouse.png" style="width:100%;"/></div>
+    <div class="blkbg" style="left:259px;top:340px;width:60px;height:90px;"><img id="m-7" src="mouse.png" style="width:100%;"/></div>
+    <div class="blkbg" style="left:343px;top:340px;width:60px;height:90px;"><img id="m-8" src="mouse.png" style="width:100%;"/></div>
+  </div>
+</div>
+<script>
+  var canvas = document.getElementById('holes');
+  var context = canvas.getContext('2d');
+  var centerX = canvas.width / 2;
+  var centerY = canvas.height / 2;
+  var radius = 70;
+  
+  var holeWidth = 72;
+  var holeHeight = 36;
+  var holeHoriDist = 84;
+  var holeVeriDist = 39;
+  var holeStartX = 270;
+  var holeStartY = 340;
+  var holePerspFactor = -32;
+  var holePerspSizeFactor = 0.92;
+
+  context.fillStyle = '#592c03';
+  
+  for (var row = 0; row < 3; ++row)
+    for (var col = 0; col < 3; ++col)
+      fillEllipseByCenter(
+        context,
+          holeStartX + holeHoriDist * col * Math.pow(holePerspSizeFactor, 2 - row) + holePerspFactor * row,
+          holeStartY + holeVeriDist * row * Math.pow(holePerspSizeFactor, 2 - row),
+          holeWidth * Math.pow(holePerspSizeFactor, 2 - row),
+          holeHeight * Math.pow(holePerspSizeFactor, 2 - row));
+          
+  setInterval(function () {
+    var id = Math.floor((Math.random() * 9));
+    showMouse(id);
+  }, 2500);
+          
+  function showMouse(id) {
+    var cls = "#m-" + id;
+    $(cls).animate({top:0}, 500).delay(500).animate({top:340}, 500);
+  }
+
+  function fillEllipseByCenter(ctx, cx, cy, w, h) {
+    fillEllipse(ctx, cx - w/2.0, cy - h/2.0, w, h);
+  }
+
+  function fillEllipse(ctx, x, y, w, h) {
+    var kappa = .5522848,
+        ox = (w / 2) * kappa, // control point offset horizontal
+        oy = (h / 2) * kappa, // control point offset vertical
+        xe = x + w,           // x-end
+        ye = y + h,           // y-end
+        xm = x + w / 2,       // x-middle
+        ym = y + h / 2;       // y-middle
+
+    ctx.beginPath();
+    ctx.moveTo(x, ym);
+    ctx.bezierCurveTo(x, ym - oy, xm - ox, y, xm, y);
+    ctx.bezierCurveTo(xm + ox, y, xe, ym - oy, xe, ym);
+    ctx.bezierCurveTo(xe, ym + oy, xm + ox, ye, xm, ye);
+    ctx.bezierCurveTo(xm - ox, ye, x, ym + oy, x, ym);
+    //ctx.closePath(); // not used correctly, see comments (use to close off open path)
+    ctx.fill();
+  }
+</script>
+</body>
+</html>
